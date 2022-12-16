@@ -11,6 +11,30 @@ export const exampleRouter = router({
       };
     }),
   getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.example.findMany();
+    return ctx.prisma.product.findMany({
+      include: {
+        priceHistory: {
+          include: {
+            price: true,
+          },
+        },
+      },
+    });
   }),
+  getOne: publicProcedure
+    .input(z.object({ webcode: z.number().nullish() }).nullish())
+    .query(({ ctx, input }) => {
+      return ctx.prisma.product.findUnique({
+        where: {
+          webcode: input?.webcode ?? 0,
+        },
+        include: {
+          priceHistory: {
+            include: {
+              price: true,
+            },
+          },
+        },
+      });
+    }),
 });
